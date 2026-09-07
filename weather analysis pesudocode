@@ -1,0 +1,93 @@
+DECLARE StationID : ARRAY[1:500] OF INTEGER
+DECLARE Temperature : ARRAY[1:500] OF REAL
+DECLARE line : STRING
+DECLARE index : INTEGER
+DECLARE tempTemperature : REAL
+DECLARE total : REAL
+DECLARE maxTemp : REAL
+DECLARE maxID : INTEGER
+DECLARE countFreeze : INTEGER
+DECLARE avg : REAL
+DECLARE TargetID : INTEGER
+DECLARE mid : INTEGER
+DECLARE found : BOOLEAN
+DECLARE userInput : STRING
+DECLARE flag : BOOLEAN
+DECLARE top : INTEGER
+DECLARE temp : REAL
+
+OPENFILE "weather_data.txt" FOR READ
+
+index <-- 1
+WHILE NOT EOF
+    READFILE "weather_data.txt", line
+    StationID[index] <-- STR_TO_NUM(LEFT(line,4))
+    tempTemperature <-- STR_TO_NUM(RIGHT(line,LENGTH(line)-4)
+    IF tempTemperature < -50.0 OR tempTemperature > 50.0 THEN
+        OUTPUT "temperature is out of range for ID " & LEFT(line,4)
+    ELSE
+        Temperature[index] <-- tempTemperature
+        index <-- index + 1 //index is number of items in array + 1
+    ENDIF
+ENDWHILE
+
+CLOSEFILE "weather_data.txt"
+
+total <-- 0
+maxTemp <-- Temperature[1]
+maxID <-- StationID[1]
+countFreeze <-- 0
+
+FOR i <-- 1 TO index-1
+    total <-- total + Temperature[i]
+    IF Temperature[i] > maxTemp THEN
+        maxTemp <-- Temperature[i]
+        maxID <-- StationID[i]
+    ENDIF
+    IF Temperature[i] < 0 THEN
+        countFreeze <-- countFreeze + 1
+    ENDIF
+NEXT i
+
+avg <-- total/(index-1) //index is number of items in array + 1
+
+OUTPUT "Enter your target ID"
+INPUT userInput
+TargetID <-- STR_TO_NUM(userInput)
+
+mid <-- INT(index/2)  //index is number of items in array + 1
+found <-- FALSE
+WHILE found = FALSE
+    IF StationID[mid] = TargetID THEN
+        OUTPUT Temperature[mid]
+        found = TRUE
+    ELSE IF INT((mid)/2) = mid THEN
+        OUTPUT "Cannot Find"
+        found = TRUE
+    ELSE IF stationID[mid] > TargetID THEN
+        mid <-- INT((mid)/2)
+    ELSE IF stationID[mid] < TargetID THEN
+        mid <-- INT((mid)/2 * 3)
+ENDWHILE
+
+top <-- index - 1     //index is number of items in array + 1
+flag <-- FALSE
+
+WHILE flag = FALSE
+    flag <-- TRUE
+    FOR i <-- 1 TO top-1
+        IF Temperature[i] < Temperature[i+1] THEN
+            temp <-- Temperature[i]
+            Temperature[i] <-- Temperature[i+1]
+            Temperature [i+1] <-- temp
+
+            temp <-- StationID[i]
+            StationID[i] <-- StationID[i+1]
+            StationID[i+1] <-- INT(temp)
+
+            flag <-- FALSE
+        ENDIF
+    NEXT i
+    top <-- top - 1
+ENDWHILE
+
