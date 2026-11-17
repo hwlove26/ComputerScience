@@ -7,4 +7,4 @@ class LinkedList:
     def __init__(self):
         self.head = None
 
-    def print_list(se
+    #def print_list(se
